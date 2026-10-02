@@ -15,8 +15,4 @@
     <ProjectReference Include="..\DomainCopilot.Infrastructure\DomainCopilot.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>
