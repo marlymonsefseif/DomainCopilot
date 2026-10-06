@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36915.13 d17.14
+VisualStudioVersion = 17.14.36915.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainCopilot.Api", "DomainCopilot.Api\DomainCopilot.Api.csproj", "{67686D47-DB7F-4773-BA24-E8D741832DED}"
 EndProject
@@ -16,6 +16,18 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainCopilot.IntegrationTests", "DomainCopilot.IntegrationTests\DomainCopilot.IntegrationTests.csproj", "{C2160B25-4EA6-4207-9947-97F8326B097C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainCopilot.ContractTests", "DomainCopilot.ContractTests\DomainCopilot.ContractTests.csproj", "{4BB30C00-6D2F-4496-B70A-E0E9EF685A40}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		AI-USAGE-LOG.md = AI-USAGE-LOG.md
+		ARCHITECTURE.md = ARCHITECTURE.md
+		BRD.md = BRD.md
+		EVALUATION.md = EVALUATION.md
+		SECURITY.md = SECURITY.md
+		SYSTEM-DESIGN.md = SYSTEM-DESIGN.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Corpus", "Corpus", "{54835642-CD0E-45A6-BD70-90C1EC62F4DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
