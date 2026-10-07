@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Packaging;
 using DomainCopilot.Application.Documents.DTOs;
 using DomainCopilot.Application.Documents.Interfaces;
 using DomainDocumentFormat = DomainCopilot.Domain.Documents.DocumentFormat;
@@ -43,11 +43,15 @@ public class DocxDocumentExtractor : IDocumentExtractor
             Environment.NewLine,
             paragraphs);
 
+        var pages = !string.IsNullOrWhiteSpace(text)
+            ? new List<ExtractedPage> { new() { PageNumber = 1, Text = text } }
+            : new List<ExtractedPage>();
+
         return new ExtractedDocument
         {
             Text = text,
-            PageCount = 0,
-            Pages = Array.Empty<ExtractedPage>()
+            PageCount = pages.Count,
+            Pages = pages
         };
     }
 }

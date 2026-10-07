@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using DomainCopilot.Application.Documents.Interfaces;
 using DomainCopilot.Domain.Documents;
 using System.Collections.Generic;
@@ -47,6 +47,13 @@ namespace DomainCopilot.Infrastructure.Documents.Repositories
             _documents.TryGetValue(id, out var document);
 
             return Task.FromResult(document);
+        }
+
+        public Task AddChunksAsync(
+            IEnumerable<DocumentChunk> chunks,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using DomainCopilot.Domain.Documents;
+using DomainCopilot.Domain.Documents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +23,10 @@ namespace DomainCopilot.Application.Documents.Interfaces
 
         Task<Document?> GetByIdAsync(
             Guid id,
+            CancellationToken cancellationToken = default);
+
+        Task AddChunksAsync(
+            IEnumerable<DocumentChunk> chunks,
             CancellationToken cancellationToken = default);
     }
 }

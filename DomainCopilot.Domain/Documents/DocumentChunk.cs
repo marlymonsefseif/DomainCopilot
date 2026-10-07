@@ -1,4 +1,4 @@
-﻿namespace DomainCopilot.Domain.Documents
+namespace DomainCopilot.Domain.Documents
 {
     public class DocumentChunk
     {
@@ -19,6 +19,8 @@
         public string? Clause { get; private set; }
 
         public string Version { get; private set; }
+
+        public float[]? Embedding { get; private set; }
 
         private DocumentChunk()
         {
@@ -55,6 +57,11 @@
             Clause = clause;
 
             Version = version;
+        }
+
+        public void SetEmbedding(float[] embedding)
+        {
+            Embedding = embedding;
         }
     }
 }

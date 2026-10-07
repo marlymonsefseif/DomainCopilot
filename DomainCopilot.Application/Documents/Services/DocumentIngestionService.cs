@@ -1,4 +1,5 @@
-﻿using DomainCopilot.Application.Documents.DTOs;
+using DomainCopilot.Application.Common.Interfaces;
+using DomainCopilot.Application.Documents.DTOs;
 using DomainCopilot.Application.Documents.Interfaces;
 using DomainCopilot.Domain.Documents;
 
@@ -11,19 +12,22 @@ namespace DomainCopilot.Application.Documents.Services
         private readonly IDocumentRepository _repository;
         private readonly IDocumentHashCalculator _hashCalculator;
         private readonly IDocumentChunker _chunker;
+        private readonly IEmbeddingProvider _embeddingProvider;
 
         public DocumentIngestionService(
             IEnumerable<IDocumentExtractor> extractors,
             ITextCleaner textCleaner,
             IDocumentRepository repository,
             IDocumentHashCalculator hashCalculator,
-            IDocumentChunker chunker)
+            IDocumentChunker chunker,
+            IEmbeddingProvider embeddingProvider)
         {
             _extractors = extractors;
             _textCleaner = textCleaner;
             _repository = repository;
             _hashCalculator = hashCalculator;
             _chunker = chunker;
+            _embeddingProvider = embeddingProvider;
         }
 
         public async Task<IngestDocumentResponse> IngestAsync(
@@ -132,6 +136,26 @@ namespace DomainCopilot.Application.Documents.Services
                     document.Source,
                     document.Version,
                     cleanedPages);
+
+                if (chunks.Count > 0)
+                {
+                    var chunkTexts = chunks.Select(c => c.Text).ToList();
+                    var embeddings = await _embeddingProvider.GenerateEmbeddingsAsync(
+                        chunkTexts,
+                        cancellationToken);
+
+                    for (var i = 0; i < chunks.Count; i++)
+                    {
+                        if (i < embeddings.Count)
+                        {
+                            chunks[i].SetEmbedding(embeddings[i]);
+                        }
+                    }
+
+                    await _repository.AddChunksAsync(
+                        chunks,
+                        cancellationToken);
+                }
 
                 var chunkResponses = chunks
                     .Select(chunk => new ChunkResponse
