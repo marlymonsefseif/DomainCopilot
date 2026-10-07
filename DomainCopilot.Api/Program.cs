@@ -35,8 +35,9 @@ builder.Services.AddSingleton<HostedEmbeddingProvider>();
 builder.Services.AddSingleton<LocalEmbeddingProvider>();
 builder.Services.AddSingleton<IEmbeddingProvider, ResilientEmbeddingProvider>();
 
-// Vector Search Service
+// Vector & Hybrid Search Services
 builder.Services.AddScoped<IVectorSearchService, PostgresVectorSearchService>();
+builder.Services.AddScoped<IHybridRetrievalService, PostgresHybridRetrievalService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
