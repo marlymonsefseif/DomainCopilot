@@ -35,6 +35,13 @@ builder.Services.AddSingleton<HostedEmbeddingProvider>();
 builder.Services.AddSingleton<LocalEmbeddingProvider>();
 builder.Services.AddSingleton<IEmbeddingProvider, ResilientEmbeddingProvider>();
 
+// LLM Providers & Fallback Chain (Twist T2)
+builder.Services.AddHttpClient<HostedLlmProvider>();
+builder.Services.AddHttpClient<LocalLlmProvider>();
+builder.Services.AddSingleton<HostedLlmProvider>();
+builder.Services.AddSingleton<LocalLlmProvider>();
+builder.Services.AddSingleton<ILlmProvider, ResilientLlmProvider>();
+
 // Vector & Hybrid Search Services
 builder.Services.AddScoped<IVectorSearchService, PostgresVectorSearchService>();
 builder.Services.AddScoped<IHybridRetrievalService, PostgresHybridRetrievalService>();
