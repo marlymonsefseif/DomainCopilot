@@ -1,11 +1,14 @@
+using DomainCopilot.Application.Auth.DTOs;
 using DomainCopilot.Application.Rag.DTOs;
 using DomainCopilot.Application.Rag.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DomainCopilot.Api.Controllers;
 
 [Route("api/rag")]
 [ApiController]
+[Authorize(Roles = $"{UserRoles.Technician},{UserRoles.Supervisor}")]
 public class RagController : ControllerBase
 {
     private readonly IVectorSearchService _vectorSearchService;

@@ -1,12 +1,15 @@
 using DomainCopilot.Application.Agents;
 using DomainCopilot.Application.Agents.DTOs;
 using DomainCopilot.Application.Agents.Guardrails;
+using DomainCopilot.Application.Auth.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DomainCopilot.Api.Controllers;
 
 [Route("api/agents")]
 [ApiController]
+[Authorize(Roles = $"{UserRoles.Technician},{UserRoles.Supervisor}")]
 public class AgentsController : ControllerBase
 {
     private readonly MaintenanceCopilotOrchestrator _orchestrator;

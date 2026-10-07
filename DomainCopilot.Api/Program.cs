@@ -13,6 +13,12 @@ using DomainCopilot.Infrastructure.Data;
 using DomainCopilot.Infrastructure.Providers;
 using DomainCopilot.Infrastructure.Rag;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using DomainCopilot.Application.Auth.Interfaces;
+using DomainCopilot.Infrastructure.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,10 +61,63 @@ builder.Services.AddScoped<DiagnosticPlannerAgent>();
 builder.Services.AddSingleton<WorkOrderGeneratorAgent>();
 builder.Services.AddScoped<MaintenanceCopilotOrchestrator>();
 
+// Authentication & Authorization (JWT Roles: Technician vs Supervisor)
+builder.Services.AddScoped<IAuthService, JwtAuthService>();
+
+var jwtKey = builder.Configuration["Jwt:SecretKey"] ?? "ThisIsASecretKeyForDomainCopilotTaskITI2026SecureKey!";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "DomainCopilot";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "DomainCopilotApp";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+});
+
+builder.Services.AddAuthorization();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "DomainCopilot API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -74,6 +133,7 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,5 +1,7 @@
-﻿using DomainCopilot.Application.Documents.DTOs;
+using DomainCopilot.Application.Auth.DTOs;
+using DomainCopilot.Application.Documents.DTOs;
 using DomainCopilot.Application.Documents.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DomainCopilot.Api.Controllers
@@ -17,6 +19,7 @@ namespace DomainCopilot.Api.Controllers
         }
 
         [HttpPost("ingest")]
+        [Authorize(Roles = UserRoles.Supervisor)]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<IngestDocumentResponse>> Ingest(
             IFormFile file,
