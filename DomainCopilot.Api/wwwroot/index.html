@@ -130,19 +130,28 @@
                 <div id="ingestOutput" class="output-box">Upload a manual to index...</div>
             </div>
 
-            <!-- Hybrid RAG Search -->
+            <!-- Vector & Hybrid RAG Search -->
             <div class="card">
-                <h2>🔍 Hybrid Vector & Keyword Search (RRF)</h2>
-                <p style="font-size: 12px; color: var(--text-muted);">Accessible to <strong>Technicians</strong> and <strong>Supervisors</strong>.</p>
+                <h2>🔍 Vector & Hybrid Search (RRF vs Dense)</h2>
+                <p style="font-size: 12px; color: var(--text-muted);">Compare <strong>Dense Vector Search</strong> with <strong>Hybrid Search (Reciprocal Rank Fusion)</strong> across PostgreSQL manuals.</p>
                 <div>
                     <label>Query</label>
-                    <input id="ragQuery" value="lockout-tagout procedure for spindle maintenance" />
+                    <input id="ragQuery" value="hydraulic pressure relief valve" />
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="runHybridSearch()">Search Corpus (RRF)</button>
-                    <button class="btn-outline" onclick="runRefusalSearch()">Test Grounded Refusal</button>
+                <!-- Preset Query Chips -->
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: -6px;">
+                    <span style="font-size: 11px; color: var(--text-muted); align-self: center;">Try:</span>
+                    <button type="button" class="btn-outline" style="padding: 3px 8px; font-size: 11px;" onclick="setRagQuery('hydraulic pressure relief valve')">🔧 Hydraulic Circuit</button>
+                    <button type="button" class="btn-outline" style="padding: 3px 8px; font-size: 11px;" onclick="setRagQuery('pump vibration and bearing troubleshooting')">⚡ Pump Vibration</button>
+                    <button type="button" class="btn-outline" style="padding: 3px 8px; font-size: 11px;" onclick="setRagQuery('zero-energy verification lockout-tagout')">🔒 Zero-Energy LOTO</button>
+                    <button type="button" class="btn-outline" style="padding: 3px 8px; font-size: 11px; color: #f87171;" onclick="setRagQuery('What is the best recipe for baking chocolate cupcakes?')">🧁 Test Refusal</button>
                 </div>
-                <div id="ragOutput" class="output-box">Awaiting search query...</div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button style="background: #38bdf8; color: #0b1120;" onclick="runHybridSearch()">⚡ Hybrid Search (RRF)</button>
+                    <button class="btn-outline" onclick="runVectorSearch()">🔍 Vector Search (/search)</button>
+                    <button class="btn-outline" style="border-color: #ef4444; color: #fca5a5;" onclick="runRefusalSearch()">🛡️ Refusal Test</button>
+                </div>
+                <div id="ragOutput" class="output-box">Click 'Hybrid Search' or 'Vector Search' above to retrieve citations...</div>
             </div>
 
             <!-- Real-Time SSE Stream -->
@@ -238,6 +247,7 @@
     </div>
 
     <script>
+        const API_BASE = window.location.origin.startsWith('http') ? '' : 'http://localhost:5174';
         let currentToken = localStorage.getItem("jwt_token") || null;
         let currentRole = localStorage.getItem("user_role") || null;
         let selectedUsername = "supervisor";
@@ -298,7 +308,7 @@
             const adminContainer = document.getElementById('adminListContainer');
             const techContainer = document.getElementById('techListContainer');
             try {
-                const res = await fetch('/api/auth/users');
+                const res = await fetch(`${API_BASE}/api/auth/users`);
                 dbUsers = await res.json();
                 renderUsersList();
             } catch (err) {
@@ -383,7 +393,7 @@
             }
 
             try {
-                const res = await fetch('/api/auth/register', {
+                const res = await fetch(`${API_BASE}/api/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -415,7 +425,7 @@
 
         async function doLogin(username, password) {
             try {
-                const res = await fetch('/api/auth/login', {
+                const res = await fetch(`${API_BASE}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
@@ -456,7 +466,7 @@
         // Status check
         async function checkStatus() {
             try {
-                const res = await fetch('/api/copilot/status');
+                const res = await fetch(`${API_BASE}/api/copilot/status`);
                 const data = await res.json();
                 document.getElementById('statusBadge').innerText = `● LLM: ${data.llmProvider} | Embeddings: ${data.embeddingProvider} (T2 Ready)`;
             } catch {
@@ -477,14 +487,14 @@
                     priority: "High"
                 };
 
-                const res = await fetch('/api/agents/diagnose', {
+                const res = await fetch(`${API_BASE}/api/agents/diagnose`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify(payload)
                 });
 
                 if (res.status === 401) {
-                    out.innerHTML = `<div class="alert-warn">🔒 401 Unauthorized: Please click 'Choose User / Register' above to login.</div>`;
+                    out.innerHTML = `<div class="alert-warn">🔒 401 Unauthorized: Please click 'Login' above to authenticate first.</div>`;
                     openLoginModal();
                     return;
                 }
@@ -526,14 +536,14 @@
                 zeroEnergyChecks: []
             };
 
-            const res = await fetch('/api/agents/verify-safety?equipmentType=Centrifugal%20Pump', {
+            const res = await fetch(`${API_BASE}/api/agents/verify-safety?equipmentType=Centrifugal%20Pump`, {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify(violationPayload)
             });
 
             if (res.status === 401) {
-                out.innerHTML = `<div class="alert-warn">🔒 401 Unauthorized: Please login first.</div>`;
+                out.innerHTML = `<div class="alert-warn">🔒 401 Unauthorized: Please click 'Login' first.</div>`;
                 openLoginModal();
                 return;
             }
@@ -561,14 +571,14 @@
 
             out.innerText = "Uploading, parsing, chunking, embedding, and indexing in PostgreSQL...";
 
-            const res = await fetch('/api/documents/ingest', {
+            const res = await fetch(`${API_BASE}/api/documents/ingest`, {
                 method: 'POST',
                 headers: currentToken ? { 'Authorization': `Bearer ${currentToken}` } : {},
                 body: formData
             });
 
             if (res.status === 403) {
-                out.innerHTML = `<div class="alert-danger">⛔ 403 Forbidden: Document ingestion is restricted to Supervisors only. Please click 'Choose User' and select Supervisor.</div>`;
+                out.innerHTML = `<div class="alert-danger">⛔ 403 Forbidden: Document ingestion is restricted to Supervisors only. Please click 'Switch User' and select Supervisor (Eng. Mohamed).</div>`;
                 return;
             }
             if (res.status === 401) {
@@ -585,38 +595,98 @@
                 `Status: Processed`;
         }
 
-        // Hybrid Search
-        async function runHybridSearch() {
+        // Quick Query Setter
+        function setRagQuery(text) {
+            document.getElementById('ragQuery').value = text;
+        }
+
+        // Vector Search (Dense)
+        async function runVectorSearch() {
             const out = document.getElementById('ragOutput');
-            out.innerText = "Searching PostgreSQL (Vectors + BM25 Full-Text + RRF Fusion)...";
+            const query = document.getElementById('ragQuery').value.trim();
+            if (!query) { alert('Please enter a query.'); return; }
+            out.innerText = "Searching PostgreSQL (Dense Vector Search via cosine_similarity)...";
 
-            const res = await fetch('/api/rag/hybrid-search', {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    query: document.getElementById('ragQuery').value,
-                    topK: 3
-                })
-            });
+            try {
+                const res = await fetch(`${API_BASE}/api/rag/search`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ query, topK: 3 })
+                });
 
-            if (res.status === 401) {
-                out.innerHTML = `<div class="alert-warn">🔒 401 Unauthorized: Please login to search.</div>`;
-                openLoginModal();
-                return;
-            }
+                if (res.status === 401) {
+                    out.innerHTML = `<div class="alert-warn">🔒 401 Unauthorized: Please click 'Login' above to search.</div>`;
+                    openLoginModal();
+                    return;
+                }
 
-            const data = await res.json();
-
-            if (data.refusal) {
-                out.innerHTML = `<div class="alert-danger">Refusal: ${data.message}</div>`;
-            } else {
-                out.innerHTML = `Found ${data.resultCount} Grounded Results:\n\n` +
-                    data.citations.map((c, i) => `[Citation ${i+1}] ${c.source} | Section: ${c.section} (Score: ${c.relevanceScore.toFixed(4)})\n"${c.snippet}"\n`).join('\n');
+                const data = await res.json();
+                renderRagResults(data, "Dense Vector Search (/api/rag/search)");
+            } catch (err) {
+                out.innerHTML = `<div class="alert-danger">Search error: ${err.message}</div>`;
             }
         }
 
+        // Hybrid Search (Dense + Keyword RRF)
+        async function runHybridSearch() {
+            const out = document.getElementById('ragOutput');
+            const query = document.getElementById('ragQuery').value.trim();
+            if (!query) { alert('Please enter a query.'); return; }
+            out.innerText = "Searching PostgreSQL (Hybrid: Vector + Full-Text BM25 with Reciprocal Rank Fusion)...";
+
+            try {
+                const res = await fetch(`${API_BASE}/api/rag/hybrid-search`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ query, topK: 3 })
+                });
+
+                if (res.status === 401) {
+                    out.innerHTML = `<div class="alert-warn">🔒 401 Unauthorized: Please click 'Login' above to search.</div>`;
+                    openLoginModal();
+                    return;
+                }
+
+                const data = await res.json();
+                renderRagResults(data, "Hybrid RRF Retrieval (/api/rag/hybrid-search)");
+            } catch (err) {
+                out.innerHTML = `<div class="alert-danger">Search error: ${err.message}</div>`;
+            }
+        }
+
+        // Render Citations / Refusal
+        function renderRagResults(data, modeTitle) {
+            const out = document.getElementById('ragOutput');
+            if (data.refusal) {
+                out.innerHTML = `<div class="alert-danger">🛡️ GROUNDED REFUSAL TRIGGERED:\n\n` +
+                    `Query: "${data.query}"\n` +
+                    `Reason: ${data.message || 'Not enough information in the corpus.'}\n\n` +
+                    `✓ Twist T2 Safe Behavior: Refuses out-of-domain answers instead of hallucinating.</div>`;
+                return;
+            }
+
+            if (!data.citations || data.citations.length === 0) {
+                out.innerHTML = `<div class="alert-warn">No citations found for "${data.query}". Try clicking one of the preset chips above.</div>`;
+                return;
+            }
+
+            let text = `Mode: ${modeTitle}\n` +
+                `Query: "${data.query}" | Found Citations: ${data.resultCount}\n` +
+                `═══════════════════════════════════════════════════════════════════\n\n`;
+
+            data.citations.forEach((c, idx) => {
+                text += `[Citation #${idx + 1}] 📄 ${c.source} (Page ${c.pageNumber || 'N/A'}, Section: ${c.section || 'General'})\n` +
+                    `Relevance Score: ${c.relevanceScore.toFixed(4)}\n` +
+                    `Snippet:\n"${c.snippet}"\n\n` +
+                    `───────────────────────────────────────────────────────────────────\n`;
+            });
+
+            out.innerText = text;
+        }
+
+        // Out-of-Domain Refusal Test
         async function runRefusalSearch() {
-            document.getElementById('ragQuery').value = "What is the best recipe for baking chocolate cupcakes?";
+            setRagQuery("What is the best recipe for baking chocolate cupcakes?");
             await runHybridSearch();
         }
 
@@ -626,7 +696,7 @@
             const prompt = encodeURIComponent(document.getElementById('streamPrompt').value);
             out.innerText = "";
 
-            const eventSource = new EventSource(`/api/copilot/stream?prompt=${prompt}`);
+            const eventSource = new EventSource(`${API_BASE}/api/copilot/stream?prompt=${prompt}`);
             eventSource.onmessage = function (event) {
                 if (event.data === "[DONE]") {
                     eventSource.close();
