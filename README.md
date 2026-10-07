@@ -16,7 +16,7 @@
 
 When the API server is running, the interactive dark-mode dashboard is available at:
 
-👉 **Demo URL**: [http://localhost:5174/](http://192.168.11.6:5174/)  
+👉 **Demo URL**: [http://localhost:5174/](http://localhost:5174/)  
 *(Or navigate to `/index.html` on the API host)*
 
 ### 🎮 What You Can Try in the Demo
