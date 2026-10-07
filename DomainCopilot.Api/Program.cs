@@ -5,6 +5,8 @@ using DomainCopilot.Infrastructure.Documents.Chunking;
 using DomainCopilot.Infrastructure.Documents.Cleaning;
 using DomainCopilot.Infrastructure.Documents.Extraction;
 using DomainCopilot.Infrastructure.Documents.Repositories;
+using DomainCopilot.Application.Agents;
+using DomainCopilot.Application.Agents.Guardrails;
 using DomainCopilot.Application.Common.Interfaces;
 using DomainCopilot.Application.Rag.Interfaces;
 using DomainCopilot.Infrastructure.Data;
@@ -46,6 +48,13 @@ builder.Services.AddSingleton<ILlmProvider, ResilientLlmProvider>();
 builder.Services.AddScoped<IVectorSearchService, PostgresVectorSearchService>();
 builder.Services.AddScoped<IHybridRetrievalService, PostgresHybridRetrievalService>();
 
+// Multi-Agent System & Deterministic Safety Guardrail
+builder.Services.AddSingleton<DeterministicSafetyGuardrail>();
+builder.Services.AddScoped<SymptomMatcherAgent>();
+builder.Services.AddScoped<DiagnosticPlannerAgent>();
+builder.Services.AddSingleton<WorkOrderGeneratorAgent>();
+builder.Services.AddScoped<MaintenanceCopilotOrchestrator>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -59,6 +68,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 

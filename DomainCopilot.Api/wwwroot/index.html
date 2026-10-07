@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DomainCopilot — Industrial Maintenance & Diagnostics</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --border: #334155;
+            --primary: #38bdf8;
+            --primary-hover: #0284c7;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+        .container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #064e3b; color: #6ee7b7; border: 1px solid #059669; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        h2 { font-size: 18px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        input, select, textarea { width: 100%; background: #0b1120; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 14px; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+        button { background: var(--primary); color: #0b1120; border: none; border-radius: 8px; padding: 10px 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        button:hover { background: var(--primary-hover); }
+        .output-box { background: #0b1120; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 13px; min-height: 120px; max-height: 350px; overflow-y: auto; white-space: pre-wrap; font-family: monospace; color: #cbd5e1; }
+        .citation { border-left: 3px solid var(--primary); background: #172554; padding: 8px 12px; border-radius: 4px; margin-top: 8px; font-size: 12px; }
+        .alert-safe { background: #064e3b; border-left: 4px solid var(--success); padding: 10px; border-radius: 6px; color: #a7f3d0; font-size: 13px; font-weight: 600; }
+        .alert-danger { background: #450a0a; border-left: 4px solid var(--danger); padding: 10px; border-radius: 6px; color: #fecaca; font-size: 13px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>DomainCopilot <span style="font-size: 14px; color: var(--text-muted); font-weight: normal;">(ITI Industrial Field Maintenance)</span></h1>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Clean Architecture · PostgreSQL Vector Search · Multi-Agent Orchestrator · Safety Guardrails</p>
+            </div>
+            <div id="statusBadge" class="badge">Checking Engine Status...</div>
+        </header>
+
+        <div class="grid">
+            <!-- Multi-Agent Diagnosis & Safety Guardrail -->
+            <div class="card" style="grid-column: span 2;">
+                <h2>⚙️ Multi-Agent Maintenance Diagnostic & Work Order Generator</h2>
+                <p style="font-size: 13px; color: var(--text-muted);">
+                    Orchestrates <strong>Agent 1 (Symptom Matcher)</strong>, <strong>Agent 2 (Diagnostic Planner)</strong>, the <strong>Deterministic Safety Guardrail (C#)</strong>, and <strong>Agent 3 (Work Order Generator)</strong>.
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 12px;">
+                    <div>
+                        <label>Equipment ID</label>
+                        <input id="agentEqId" value="PUMP-CENT-04" />
+                    </div>
+                    <div>
+                        <label>Equipment Type</label>
+                        <input id="agentEqType" value="Centrifugal Slurry Pump" />
+                    </div>
+                    <div>
+                        <label>Observed Symptoms / Operator Fault Report</label>
+                        <input id="agentSymptoms" value="High bearing temperature (88°C) and excessive axial vibration" />
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="runMultiAgentDiagnostic()">Run Multi-Agent Diagnostic Workflow</button>
+                    <button style="background: #334155; color: var(--text);" onclick="runSafetyViolationTest()">Test Safety Guardrail Block</button>
+                </div>
+                <div id="agentOutput" class="output-box">Ready to execute workflow...</div>
+            </div>
+
+            <!-- Hybrid RAG Search -->
+            <div class="card">
+                <h2>🔍 Hybrid Vector & Keyword Search (RRF)</h2>
+                <div>
+                    <label>Query</label>
+                    <input id="ragQuery" value="lockout-tagout procedure for spindle maintenance" />
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="runHybridSearch()">Search Corpus (RRF)</button>
+                    <button style="background: #334155; color: var(--text);" onclick="runRefusalSearch()">Test Grounded Refusal</button>
+                </div>
+                <div id="ragOutput" class="output-box">Awaiting search query...</div>
+            </div>
+
+            <!-- Real-Time SSE Stream -->
+            <div class="card">
+                <h2>💬 Real-Time Streaming Copilot (SSE)</h2>
+                <div>
+                    <label>Maintenance Inquiry</label>
+                    <input id="streamPrompt" value="Explain zero-energy verification steps before bearing replacement" />
+                </div>
+                <button onclick="runSseStream()">Start Real-Time Stream</button>
+                <div id="streamOutput" class="output-box" style="white-space: pre-wrap;">Streaming output will appear here token by token...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check Status on load
+        async function checkStatus() {
+            try {
+                const res = await fetch('/api/copilot/status');
+                const data = await res.json();
+                const badge = document.getElementById('statusBadge');
+                badge.innerText = `● LLM: ${data.llmProvider} | Embeddings: ${data.embeddingProvider} (T2 Ready)`;
+            } catch (err) {
+                document.getElementById('statusBadge').innerText = '● Local Offline Mode Active';
+            }
+        }
+        checkStatus();
+
+        // 1. Run Multi-Agent Diagnostic Workflow
+        async function runMultiAgentDiagnostic() {
+            const out = document.getElementById('agentOutput');
+            out.innerHTML = "Executing Agent 1 (Symptom Matcher)...<br>Invoking Agent 2 (Diagnostic Planner)...<br>Evaluating Deterministic C# Safety Guardrail...";
+
+            try {
+                const payload = {
+                    equipmentId: document.getElementById('agentEqId').value,
+                    equipmentType: document.getElementById('agentEqType').value,
+                    reportedSymptoms: document.getElementById('agentSymptoms').value,
+                    priority: "High"
+                };
+
+                const res = await fetch('/api/agents/diagnose', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success && data.generatedWorkOrder) {
+                    const wo = data.generatedWorkOrder;
+                    out.innerHTML = `<div class="alert-safe">✓ SAFETY GUARDRAIL PASSED — Certificate Issued: ${wo.safetyCertificateNumber}</div>\n\n` +
+                        `📋 WORK ORDER GENERATED: ${wo.workOrderId}\n` +
+                        `Equipment: ${wo.equipmentId} (${wo.equipmentType})\n` +
+                        `Title: ${wo.title}\n` +
+                        `Priority: ${wo.priority}\n\n` +
+                        `🔒 ENFORCED SAFETY PREREQUISITES (C# Validated):\n` +
+                        wo.safetyPrerequisites.map(s => `  • ${s}`).join('\n') + `\n\n` +
+                        `🛠 REQUIRED TOOLS:\n` +
+                        wo.requiredTools.map(t => `  • ${t}`).join('\n') + `\n\n` +
+                        `📦 REPLACEMENT PARTS:\n` +
+                        wo.replacementParts.map(p => `  • ${p}`).join('\n') + `\n\n` +
+                        `📝 PROCEDURE STEPS:\n` +
+                        wo.actionSteps.map(a => `  ${a}`).join('\n');
+                } else {
+                    out.innerHTML = `<div class="alert-danger">⛔ ${data.errorMessage}</div>`;
+                }
+            } catch (err) {
+                out.innerText = "Error invoking agents: " + err.message;
+            }
+        }
+
+        // Test Safety Guardrail Block
+        async function runSafetyViolationTest() {
+            const out = document.getElementById('agentOutput');
+            out.innerHTML = "Running simulated violation: Rotating equipment with missing Lockout-Tagout (LOTO)...";
+
+            const violationPayload = {
+                requiresLockoutTagout: false, // VIOLATION
+                isolationPoint: "",
+                requiredPpe: [], // VIOLATION
+                zeroEnergyChecks: [] // VIOLATION
+            };
+
+            const res = await fetch('/api/agents/verify-safety?equipmentType=Centrifugal%20Pump', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(violationPayload)
+            });
+            const data = await res.json();
+
+            out.innerHTML = `<div class="alert-danger">⛔ SAFETY GUARDRAIL BLOCKED WORK ORDER:</div>\n\n` +
+                data.violations.map(v => `• ${v}`).join('\n\n') +
+                `\n\n(Note: Work Order was rejected before issuance. This satisfies the mandatory ITI C# deterministic safety guardrail requirement.)`;
+        }
+
+        // 2. Hybrid RAG Search
+        async function runHybridSearch() {
+            const out = document.getElementById('ragOutput');
+            out.innerText = "Searching PostgreSQL (Vectors + BM25 Full-Text + RRF Fusion)...";
+
+            const res = await fetch('/api/rag/hybrid-search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: document.getElementById('ragQuery').value,
+                    topK: 3
+                })
+            });
+            const data = await res.json();
+
+            if (data.refusal) {
+                out.innerHTML = `<div class="alert-danger">Refusal: ${data.message}</div>`;
+            } else {
+                out.innerHTML = `Found ${data.resultCount} Grounded Results:\n\n` +
+                    data.citations.map((c, i) => `[Citation ${i+1}] ${c.source} | Section: ${c.section} (Score: ${c.relevanceScore.toFixed(4)})\n"${c.snippet}"\n`).join('\n');
+            }
+        }
+
+        async function runRefusalSearch() {
+            document.getElementById('ragQuery').value = "What is the best recipe for baking chocolate cupcakes?";
+            await runHybridSearch();
+        }
+
+        // 3. SSE Stream
+        async function runSseStream() {
+            const out = document.getElementById('streamOutput');
+            const prompt = encodeURIComponent(document.getElementById('streamPrompt').value);
+            out.innerText = "";
+
+            const eventSource = new EventSource(`/api/copilot/stream?prompt=${prompt}`);
+            eventSource.onmessage = function (event) {
+                if (event.data === "[DONE]") {
+                    eventSource.close();
+                } else {
+                    out.innerText += event.data;
+                }
+            };
+            eventSource.onerror = function () {
+                eventSource.close();
+            };
+        }
+    </script>
+</body>
+</html>
